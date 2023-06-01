@@ -162,10 +162,20 @@ int main() {
     // -----------------------------
     glEnable(GL_DEPTH_TEST);
 
+    //blending
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    //Face cull
+    //glEnable(GL_CULL_FACE);
+    //glCullFace(GL_FRONT);
+    //glFrontFace(GL_CW);
+    //glDisable(GL_DEPTH_TEST);
     // build and compile shaders
     // -------------------------
     Shader ourShader("resources/shaders/2.model_lighting.vs", "resources/shaders/2.model_lighting.fs");
     Shader skyboxShader("resources/shaders/skybox.vs", "resources/shaders/skybox.fs");
+    //170!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    Shader cloudShader("resources/shaders/blending.vs", "resources/shaders/blending.fs");
     float skyboxVertices[] = {
             // positions
             -1.0f,  1.0f, -1.0f,
@@ -211,6 +221,32 @@ int main() {
             1.0f, -1.0f,  1.0f
     };
 
+    //216!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    float transparentVertices[] = {
+            // positions         // texture Coords (swapped y coordinates because texture is flipped upside down)
+            0.0f,  0.5f,  0.0f,  0.0f,  0.0f,
+            0.0f, -0.5f,  0.0f,  0.0f,  1.0f,
+            1.0f, -0.5f,  0.0f,  1.0f,  1.0f,
+
+            0.0f,  0.5f,  0.0f,  0.0f,  0.0f,
+            1.0f, -0.5f,  0.0f,  1.0f,  1.0f,
+            1.0f,  0.5f,  0.0f,  1.0f,  0.0f
+    };
+
+    //217!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    // transparent VAO
+    unsigned int transparentVAO, transparentVBO;
+    glGenVertexArrays(1, &transparentVAO);
+    glGenBuffers(1, &transparentVBO);
+    glBindVertexArray(transparentVAO);
+    glBindBuffer(GL_ARRAY_BUFFER, transparentVBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(transparentVertices), transparentVertices, GL_STATIC_DRAW);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+    glBindVertexArray(0);
+
     // skybox VAO
     unsigned int skyboxVAO, skyboxVBO;
     glGenVertexArrays(1, &skyboxVAO);
@@ -231,6 +267,41 @@ int main() {
                     FileSystem::getPath("resources/textures/skybox/back.bmp")
             };
     unsigned int cubemapTexture = loadCubemap(faces);
+    unsigned int transparentTexture = loadTexture(FileSystem::getPath("resources/textures/8918181.png").c_str());
+    //240!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    // transparent clouds locations
+    // --------------------------------
+    vector<glm::vec3> clouds
+            {
+                    glm::vec3(30.0f, 15.0f, 30.0f),
+                    glm::vec3(11.0f, 0.5f, 18.0f),
+                    glm::vec3(2.5f, 5.0f, 4.0f),
+                    glm::vec3(-15.5f, 3.4f, 11.5f),
+                    glm::vec3(-3.5f, 2.5f, 6.5f),
+                    glm::vec3(-6.4f, -5.0f, 3.5f),
+                    glm::vec3(5.5f, -11.0f, -13.0f),
+                    glm::vec3(-25.0f, -15.0f, 7.0f),
+                    glm::vec3(-5.5f, 4.5f, -8.5f),
+                    glm::vec3(0.4f, -4.6f, 15.60f),
+                    glm::vec3(8.5f, -21.0f, -23.8f),
+                    glm::vec3(16.5f, -20.5f, -13.0f),
+                    glm::vec3 (5.0f,7.0f,-1.0f),
+                    glm::vec3(3.0f, -.0f, 30.0f),
+                    glm::vec3(11.0f, 0.5f, 18.0f),
+                    glm::vec3(2.5f, 5.0f, 4.0f),
+                    glm::vec3(-15.5f, 3.4f, 11.5f),
+                    glm::vec3(-3.5f, 2.5f, 6.5f),
+                    glm::vec3(-6.4f, -5.1f, 3.5f),
+                    glm::vec3(5.5f, -11.f, -13.0f),
+                    glm::vec3(-25.0f, -15.0f, 7.0f),
+                    glm::vec3(-5.5f, 4.5f, -8.5f),
+                    glm::vec3(0.4f, -4.6f, 15.60f),
+                    glm::vec3(8.5f, -21.0f, -23.8f),
+                    glm::vec3(16.5f, -27.5f, -13.0f),
+                    glm::vec3 (5.0f,7.0f,-1.0f)
+            };
+    cloudShader.use();
+    cloudShader.setInt("texture1",0);
 
     skyboxShader.use();
     skyboxShader.setInt("skybox", 0);
@@ -239,10 +310,14 @@ int main() {
     // -----------
     //Model ourModel("resources/objects/backpack/backpack.obj");
     //ourModel.SetShaderTextureNamePrefix("material.");
-    Model avion("resources/objects/avion/piper_pa18.obj");
+    Model avion("resources/objects/FFGLOBJ/FFGLOBJ.obj");
     avion.SetShaderTextureNamePrefix("material.");
-    Model ptica("resources/objects/ptica/uploads_files_4387796_Flying+Egret.obj");
-    ptica.SetShaderTextureNamePrefix("material.");
+
+    //Model ptica("resources/objects/ptica/uploads_files_4387796_Flying+Egret.obj");
+    //ptica.SetShaderTextureNamePrefix("material.");
+
+    //Model oblak("resources/objects/oblak/uploads_files_60356_cloud.obj");
+    //oblak.SetShaderTextureNamePrefix(("material."));
     PointLight& pointLight = programState->pointLight;
     pointLight.position = glm::vec3(4.0f, 4.0, 0.0);
     pointLight.ambient = glm::vec3(0.8, 0.8, 0.8);
@@ -300,23 +375,35 @@ int main() {
 
         // render the loaded model
         glm::mat4 model = glm::mat4(1.0f); //model matrica
-        model = glm::translate(model,
-                               programState->backpackPosition); // translate it down so it's at the center of the scene
-        model = glm::scale(model, glm::vec3(programState->backpackScale));    // it's a bit too big for our scene, so scale it down
-        ourShader.setMat4("model", model);
+        //model = glm::translate(model,
+                              // programState->backpackPosition); // translate it down so it's at the center of the scene
+        //model = glm::scale(model, glm::vec3(programState->backpackScale));    // it's a bit too big for our scene, so scale it down
+        //ourShader.setMat4("model", model);
         //ourModel.Draw(ourShader);
 
         ourShader.use();
         model=glm::mat4(1.0f);
         model=glm::scale(model, glm::vec3(2.0f));
+        model=glm::translate(model, glm::vec3(0.0f, 0.5*sin(currentFrame), 0.0f));
+        model=glm::rotate(model, glm::radians(-90.0f) , glm::vec3(1.0f, 0.0f, 0.0f));
         ourShader.setMat4("model", model);
         avion.Draw(ourShader);
 
-        model=glm::mat4(1.0f);
-        model=glm::scale(model, glm::vec3(1.5f));
-        model=glm::translate(model, glm::vec3(7.0f));
-        ourShader.setMat4("model", model);
-        ptica.Draw(ourShader);
+        //328!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        // clouds
+        cloudShader.use();
+        cloudShader.setMat4("projection", projection);
+        cloudShader.setMat4("view", view);
+        glBindVertexArray(transparentVAO);
+        glBindTexture(GL_TEXTURE_2D, transparentTexture);
+        for (unsigned int i = 0; i < clouds.size(); i++)
+        {
+            model = glm::mat4(1.0f);
+            model = glm::translate(model, clouds[i]);
+            model = glm::scale(model,glm::vec3(4.0f));
+            cloudShader.setMat4("model", model);
+            glDrawArrays(GL_TRIANGLES, 0, 6);
+        }
         //draw skybox
         glDepthFunc(GL_LEQUAL);  // change depth function so depth test passes when values are equal to depth buffer's content
         skyboxShader.use();
