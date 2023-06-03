@@ -166,15 +166,14 @@ int main() {
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     //Face cull
-    //glEnable(GL_CULL_FACE);
-    //glCullFace(GL_FRONT);
-    //glFrontFace(GL_CW);
+    glEnable(GL_CULL_FACE);
+    glCullFace(GL_FRONT);
+    glFrontFace(GL_CW);
     //glDisable(GL_DEPTH_TEST);
     // build and compile shaders
     // -------------------------
     Shader ourShader("resources/shaders/2.model_lighting.vs", "resources/shaders/2.model_lighting.fs");
     Shader skyboxShader("resources/shaders/skybox.vs", "resources/shaders/skybox.fs");
-    //170!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     Shader cloudShader("resources/shaders/blending.vs", "resources/shaders/blending.fs");
     float skyboxVertices[] = {
             // positions
@@ -221,7 +220,6 @@ int main() {
             1.0f, -1.0f,  1.0f
     };
 
-    //216!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     float transparentVertices[] = {
             // positions         // texture Coords (swapped y coordinates because texture is flipped upside down)
             0.0f,  0.5f,  0.0f,  0.0f,  0.0f,
@@ -233,7 +231,6 @@ int main() {
             1.0f,  0.5f,  0.0f,  1.0f,  0.0f
     };
 
-    //217!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     // transparent VAO
     unsigned int transparentVAO, transparentVBO;
     glGenVertexArrays(1, &transparentVAO);
@@ -268,7 +265,7 @@ int main() {
             };
     unsigned int cubemapTexture = loadCubemap(faces);
     unsigned int transparentTexture = loadTexture(FileSystem::getPath("resources/textures/8918181.png").c_str());
-    //240!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
     // transparent clouds locations
     // --------------------------------
     vector<glm::vec3> clouds
@@ -298,7 +295,22 @@ int main() {
                     glm::vec3(0.4f, -4.6f, 15.60f),
                     glm::vec3(8.5f, -21.0f, -23.8f),
                     glm::vec3(16.5f, -27.5f, -13.0f),
-                    glm::vec3 (5.0f,7.0f,-1.0f)
+                    glm::vec3 (-5.0f,-7.0f,-1.0f),
+                    glm::vec3(-3.0f, -9.0f, 35.0f),
+                    glm::vec3(11.0f, 20.0f, -1.0f),
+                    glm::vec3(2.5f, 5.0f, 4.0f),
+                    glm::vec3(15.5f, 17.5f, 11.5f),
+                    glm::vec3(-3.5f, -2.5f, -6.5f),
+                    glm::vec3(11.5f, -15.0f, -3.5f),
+                    glm::vec3(-5.5f, -11.0f, 13.0f),
+                    glm::vec3(25.5f, 15.0f, 7.0f),
+                    glm::vec3(12.5f, 4.5f, 8.5f),
+                    glm::vec3(5.5f, -4.5f, -15.60f),
+                    glm::vec3(7.5f, -20.0f, 22.8f),
+                    glm::vec3(16.5f, -27.5f, -13.0f),
+                    glm::vec3 (5.0f,17.0f,11.0f),
+                    glm::vec3 (-15.0f,-15.0f,20.0f),
+                    glm::vec3 (15.0f,10.5f,25.0f)
             };
     cloudShader.use();
     cloudShader.setInt("texture1",0);
@@ -308,16 +320,9 @@ int main() {
 
     // load models
     // -----------
-    //Model ourModel("resources/objects/backpack/backpack.obj");
-    //ourModel.SetShaderTextureNamePrefix("material.");
     Model avion("resources/objects/FFGLOBJ/FFGLOBJ.obj");
     avion.SetShaderTextureNamePrefix("material.");
 
-    //Model ptica("resources/objects/ptica/uploads_files_4387796_Flying+Egret.obj");
-    //ptica.SetShaderTextureNamePrefix("material.");
-
-    //Model oblak("resources/objects/oblak/uploads_files_60356_cloud.obj");
-    //oblak.SetShaderTextureNamePrefix(("material."));
     PointLight& pointLight = programState->pointLight;
     pointLight.position = glm::vec3(4.0f, 4.0, 0.0);
     pointLight.ambient = glm::vec3(0.8, 0.8, 0.8);
@@ -356,7 +361,7 @@ int main() {
 
         // don't forget to enable shader before setting uniforms
         ourShader.use();
-        pointLight.position = glm::vec3(4.0 * cos(currentFrame), 4.0f, 4.0 * sin(currentFrame));
+        //pointLight.position = glm::vec3(4.0 * cos(currentFrame), 4.0f, 4.0 * sin(currentFrame));
         ourShader.setVec3("pointLight.position", pointLight.position);
         ourShader.setVec3("pointLight.ambient", pointLight.ambient);
         ourShader.setVec3("pointLight.diffuse", pointLight.diffuse);
@@ -366,6 +371,11 @@ int main() {
         ourShader.setFloat("pointLight.quadratic", pointLight.quadratic);
         ourShader.setVec3("viewPosition", programState->camera.Position);
         ourShader.setFloat("material.shininess", 32.0f);
+
+        ourShader.setVec3("dirLight.direction", glm::vec3(0.0f,20.0f,0.0f));
+        ourShader.setVec3("dirLight.ambient", glm::vec3(0.5));
+        ourShader.setVec3("dirLight.diffuse", glm::vec3(0.03));
+        ourShader.setVec3("dirLight.specular", glm::vec3(0.03));
         // view/projection transformations
         glm::mat4 projection = glm::perspective(glm::radians(programState->camera.Zoom),
                                                 (float) SCR_WIDTH / (float) SCR_HEIGHT, 0.1f, 100.0f);
@@ -375,12 +385,6 @@ int main() {
 
         // render the loaded model
         glm::mat4 model = glm::mat4(1.0f); //model matrica
-        //model = glm::translate(model,
-                              // programState->backpackPosition); // translate it down so it's at the center of the scene
-        //model = glm::scale(model, glm::vec3(programState->backpackScale));    // it's a bit too big for our scene, so scale it down
-        //ourShader.setMat4("model", model);
-        //ourModel.Draw(ourShader);
-
         ourShader.use();
         model=glm::mat4(1.0f);
         model=glm::scale(model, glm::vec3(2.0f));
@@ -389,7 +393,6 @@ int main() {
         ourShader.setMat4("model", model);
         avion.Draw(ourShader);
 
-        //328!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         // clouds
         cloudShader.use();
         cloudShader.setMat4("projection", projection);
