@@ -264,7 +264,7 @@ int main() {
                     FileSystem::getPath("resources/textures/skybox/back.bmp")
             };
     unsigned int cubemapTexture = loadCubemap(faces);
-    unsigned int transparentTexture = loadTexture(FileSystem::getPath("resources/textures/8918181.png").c_str());
+    unsigned int transparentTexture = loadTexture(FileSystem::getPath("resources/textures/cloud-8108.png").c_str());
 
     // transparent clouds locations
     // --------------------------------
@@ -320,8 +320,12 @@ int main() {
 
     // load models
     // -----------
-    Model avion("resources/objects/FFGLOBJ/FFGLOBJ.obj");
+    Model avion("resources/objects/avion1/FFGLOBJ.obj");
     avion.SetShaderTextureNamePrefix("material.");
+    Model avion2("resources/objects/avion2/TAL16OBJ.obj");
+    avion2.SetShaderTextureNamePrefix("material.");
+    Model avion3("resources/objects/avion3/VLJ19OBJ.obj");
+    avion2.SetShaderTextureNamePrefix("material.");
 
     PointLight& pointLight = programState->pointLight;
     pointLight.position = glm::vec3(4.0f, 4.0, 0.0);
@@ -372,7 +376,7 @@ int main() {
         ourShader.setVec3("viewPosition", programState->camera.Position);
         ourShader.setFloat("material.shininess", 32.0f);
 
-        ourShader.setVec3("dirLight.direction", glm::vec3(0.0f,20.0f,0.0f));
+        ourShader.setVec3("dirLight.direction", glm::vec3(5.0f,20.0f,5.0f));
         ourShader.setVec3("dirLight.ambient", glm::vec3(0.5));
         ourShader.setVec3("dirLight.diffuse", glm::vec3(0.03));
         ourShader.setVec3("dirLight.specular", glm::vec3(0.03));
@@ -383,17 +387,31 @@ int main() {
         ourShader.setMat4("projection", projection);
         ourShader.setMat4("view", view);
 
-        // render the loaded model
-        glm::mat4 model = glm::mat4(1.0f); //model matrica
+        //avion1
+        glm::mat4 model = glm::mat4(1.0f);
         ourShader.use();
         model=glm::mat4(1.0f);
-        model=glm::scale(model, glm::vec3(2.0f));
-        model=glm::translate(model, glm::vec3(0.0f, 0.5*sin(currentFrame), 0.0f));
+        model=glm::scale(model, glm::vec3(3.0f));
+        model=glm::translate(model, glm::vec3(0.0f, 0.5*cos(currentFrame)-4.0f, 2.0f));
         model=glm::rotate(model, glm::radians(-90.0f) , glm::vec3(1.0f, 0.0f, 0.0f));
         ourShader.setMat4("model", model);
         avion.Draw(ourShader);
-
+        //avion2
+        model=glm::mat4(1.0f);
+        model=glm::scale(model, glm::vec3(3.0f));
+        model=glm::translate(model, glm::vec3(3.0f, 0.25*sin(currentFrame)+1.0f, 5.0f));
+        model=glm::rotate(model, glm::radians(-90.0f) , glm::vec3(1.0f, 0.0f, 0.0f));
+        ourShader.setMat4("model", model);
+        avion2.Draw(ourShader);
+        //avion3
+        model=glm::mat4(1.0f);
+        model=glm::scale(model, glm::vec3(3.0f));
+        model=glm::translate(model, glm::vec3(0.0f, 0.25*sin(currentFrame)+6.0f, 2.0f));
+        model=glm::rotate(model, glm::radians(-90.0f) , glm::vec3(1.0f, 0.0f, 0.0f));
+        ourShader.setMat4("model", model);
+        avion3.Draw(ourShader);
         // clouds
+        glDisable(GL_CULL_FACE);
         cloudShader.use();
         cloudShader.setMat4("projection", projection);
         cloudShader.setMat4("view", view);
@@ -403,10 +421,11 @@ int main() {
         {
             model = glm::mat4(1.0f);
             model = glm::translate(model, clouds[i]);
-            model = glm::scale(model,glm::vec3(4.0f));
+            model = glm::scale(model,glm::vec3(5.0f));
             cloudShader.setMat4("model", model);
             glDrawArrays(GL_TRIANGLES, 0, 6);
         }
+        glEnable(GL_CULL_FACE);
         //draw skybox
         glDepthFunc(GL_LEQUAL);  // change depth function so depth test passes when values are equal to depth buffer's content
         skyboxShader.use();
