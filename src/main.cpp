@@ -264,7 +264,7 @@ int main() {
                     FileSystem::getPath("resources/textures/skybox/back.bmp")
             };
     unsigned int cubemapTexture = loadCubemap(faces);
-    unsigned int transparentTexture = loadTexture(FileSystem::getPath("resources/textures/cloud-8108.png").c_str());
+    unsigned int transparentTexture = loadTexture(FileSystem::getPath("resources/textures/8918181.png").c_str());
 
     // transparent clouds locations
     // --------------------------------
@@ -329,7 +329,7 @@ int main() {
 
     PointLight& pointLight = programState->pointLight;
     pointLight.position = glm::vec3(4.0f, 4.0, 0.0);
-    pointLight.ambient = glm::vec3(0.8, 0.8, 0.8);
+    pointLight.ambient = glm::vec3(0.9, 0.9, 0.9);
     pointLight.diffuse = glm::vec3(0.6, 0.6, 0.6);
     pointLight.specular = glm::vec3(1.0, 1.0, 1.0);
 
@@ -365,9 +365,9 @@ int main() {
 
         // don't forget to enable shader before setting uniforms
         ourShader.use();
-        //pointLight.position = glm::vec3(4.0 * cos(currentFrame), 4.0f, 4.0 * sin(currentFrame));
+        pointLight.position = glm::vec3(4.0*cos(currentFrame), 4.0f, 4.0 * sin(currentFrame));
         ourShader.setVec3("pointLight.position", pointLight.position);
-        ourShader.setVec3("pointLight.ambient", pointLight.ambient);
+        ourShader.setVec3("pointLight.ambient",  pointLight.ambient);
         ourShader.setVec3("pointLight.diffuse", pointLight.diffuse);
         ourShader.setVec3("pointLight.specular", pointLight.specular);
         ourShader.setFloat("pointLight.constant", pointLight.constant);
@@ -376,10 +376,10 @@ int main() {
         ourShader.setVec3("viewPosition", programState->camera.Position);
         ourShader.setFloat("material.shininess", 32.0f);
 
-        ourShader.setVec3("dirLight.direction", glm::vec3(5.0f,20.0f,5.0f));
+        ourShader.setVec3("dirLight.direction", glm::vec3(0.0f,18.0f,0.0f));
         ourShader.setVec3("dirLight.ambient", glm::vec3(0.5));
-        ourShader.setVec3("dirLight.diffuse", glm::vec3(0.03));
-        ourShader.setVec3("dirLight.specular", glm::vec3(0.03));
+        ourShader.setVec3("dirLight.diffuse", glm::vec3(0.04));
+        ourShader.setVec3("dirLight.specular", glm::vec3(0.06));
         // view/projection transformations
         glm::mat4 projection = glm::perspective(glm::radians(programState->camera.Zoom),
                                                 (float) SCR_WIDTH / (float) SCR_HEIGHT, 0.1f, 100.0f);
