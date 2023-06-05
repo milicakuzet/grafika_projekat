@@ -9,3 +9,5 @@ Milica Kužet 64/2020
 
 Iz grupe A je implementirana oblast Cubemaps.
 
+Link ka videu: https://youtu.be/i7gMi6Ex_X8
+
