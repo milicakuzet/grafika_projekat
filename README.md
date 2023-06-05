@@ -1,11 +1,11 @@
-# project_base
-Prazan projekat sa pratećim bibliotekama koje koristimo na času. 
+# Nebo
+Projekat iz Računarske grafike 2022/2023
+Milica Kužet 64/2020
 
 # Uputstvo
-1. `git clone https://github.com/matf-racunarska-grafika/project_base.git`
-2. CLion -> Open -> path/to/my/project_base
-3. Main se nalazi u src/main.cpp
-4. Cpp fajlovi idu u src folder
-5. Zaglavlja (h i hpp) fajlovi idu u include
-6. Šejderi idu u folder shaders. `Vertex shader` ima ekstenziju `.vs`, `fragment shader` ima ekstenziju `.fs`
-7. ALT+SHIFT+F10 -> project_base -> run
+1. `W` `S` `A` `D` komande za kretanje
+2. `C` komanda za zaključavanje kamere
+3. `ESC` komanda za izlazak iz programa
+
+Iz grupe A je implementirana oblast Cubemaps.
+
