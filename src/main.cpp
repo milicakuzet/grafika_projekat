@@ -154,7 +154,6 @@ int main() {
     (void) io;
 
 
-
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init("#version 330 core");
 
@@ -175,6 +174,8 @@ int main() {
     Shader ourShader("resources/shaders/2.model_lighting.vs", "resources/shaders/2.model_lighting.fs");
     Shader skyboxShader("resources/shaders/skybox.vs", "resources/shaders/skybox.fs");
     Shader cloudShader("resources/shaders/blending.vs", "resources/shaders/blending.fs");
+    Shader birdsShader ("resources/shaders/blending.vs", "resources/shaders/blending_birds.fs");
+
     float skyboxVertices[] = {
             // positions
             -1.0f,  1.0f, -1.0f,
@@ -264,8 +265,8 @@ int main() {
                     FileSystem::getPath("resources/textures/skybox/back.bmp")
             };
     unsigned int cubemapTexture = loadCubemap(faces);
-    unsigned int transparentTexture = loadTexture(FileSystem::getPath("resources/textures/8918181.png").c_str());
-
+    unsigned int transparentTexture = loadTexture(FileSystem::getPath("resources/textures/cloud.png").c_str());
+    unsigned int transparentTexture2 = loadTexture(FileSystem::getPath("resources/textures/bird.png").c_str());
     // transparent clouds locations
     // --------------------------------
     vector<glm::vec3> clouds
@@ -310,10 +311,27 @@ int main() {
                     glm::vec3(16.5f, -27.5f, -13.0f),
                     glm::vec3 (5.0f,17.0f,11.0f),
                     glm::vec3 (-15.0f,-15.0f,20.0f),
-                    glm::vec3 (15.0f,10.5f,25.0f)
+                    glm::vec3 (15.0f,10.5f,25.0f),
+                    glm::vec3 (-9.0f,17.5f,9.0f)
+            };
+
+    vector<glm::vec3> birds
+            {
+                    glm::vec3(13.0f, -5.0f, 7.0f),
+                    glm::vec3(1.0f, 10.8f, 16.0f),
+                    glm::vec3(-2.5f, 6.0f, 2.0f),
+                    glm::vec3(-14.5f, -3.8f, -12.5f),
+                    glm::vec3(5.5f, 3.5f, -8.0f),
+                    glm::vec3(6.5f, 5.0f, 3.5f),
+                    glm::vec3(-5.5f, -11.5f, 13.0f),
+                    glm::vec3(15.0f, -15.5f, 17.0f),
+                    glm::vec3(-5.5f, -4.5f, -8.5f)
             };
     cloudShader.use();
     cloudShader.setInt("texture1",0);
+
+    birdsShader.use();
+    birdsShader.setInt("texture1",0);
 
     skyboxShader.use();
     skyboxShader.setInt("skybox", 0);
@@ -328,15 +346,14 @@ int main() {
     avion2.SetShaderTextureNamePrefix("material.");
 
     PointLight& pointLight = programState->pointLight;
-    pointLight.position = glm::vec3(4.0f, 4.0, 0.0);
-    pointLight.ambient = glm::vec3(0.9, 0.9, 0.9);
-    pointLight.diffuse = glm::vec3(0.6, 0.6, 0.6);
-    pointLight.specular = glm::vec3(1.0, 1.0, 1.0);
+    pointLight.position = glm::vec3(5.0f, 5.0, 5.0);
+    pointLight.ambient = glm::vec3(0.8, 0.8, 0.8);
+    pointLight.diffuse = glm::vec3(0.7, 0.7, 0.7);
+    pointLight.specular = glm::vec3(1.1, 1.1, 1.1);
 
     pointLight.constant = 1.0f;
-    pointLight.linear = 0.09f;
-    pointLight.quadratic = 0.032f;
-
+    pointLight.linear = 0.08f;
+    pointLight.quadratic = 0.033f;
 
     // load textures
     // -------------
@@ -357,7 +374,6 @@ int main() {
         // -----
         processInput(window);
 
-
         // render
         // ------
         glClearColor(programState->clearColor.r, programState->clearColor.g, programState->clearColor.b, 1.0f);
@@ -365,7 +381,7 @@ int main() {
 
         // don't forget to enable shader before setting uniforms
         ourShader.use();
-        pointLight.position = glm::vec3(4.0*cos(currentFrame), 4.0f, 4.0 * sin(currentFrame));
+       /* pointLight.position = glm::vec3(4.0*cos(currentFrame), 4.0f, 4.0 * sin(currentFrame));
         ourShader.setVec3("pointLight.position", pointLight.position);
         ourShader.setVec3("pointLight.ambient",  pointLight.ambient);
         ourShader.setVec3("pointLight.diffuse", pointLight.diffuse);
@@ -373,7 +389,7 @@ int main() {
         ourShader.setFloat("pointLight.constant", pointLight.constant);
         ourShader.setFloat("pointLight.linear", pointLight.linear);
         ourShader.setFloat("pointLight.quadratic", pointLight.quadratic);
-        ourShader.setVec3("viewPosition", programState->camera.Position);
+        ourShader.setVec3("viewPosition", programState->camera.Position);*/
         ourShader.setFloat("material.shininess", 32.0f);
 
         ourShader.setVec3("dirLight.direction", glm::vec3(0.0f,18.0f,0.0f));
@@ -392,21 +408,21 @@ int main() {
         ourShader.use();
         model=glm::mat4(1.0f);
         model=glm::scale(model, glm::vec3(3.0f));
-        model=glm::translate(model, glm::vec3(0.0f, 0.5*cos(currentFrame)-4.0f, 2.0f));
+        model=glm::translate(model, glm::vec3(0.2*sin(currentFrame), 0.5*cos(currentFrame)-4.0f, 2.0f));
         model=glm::rotate(model, glm::radians(-90.0f) , glm::vec3(1.0f, 0.0f, 0.0f));
         ourShader.setMat4("model", model);
         avion.Draw(ourShader);
         //avion2
         model=glm::mat4(1.0f);
         model=glm::scale(model, glm::vec3(3.0f));
-        model=glm::translate(model, glm::vec3(3.0f, 0.25*sin(currentFrame)+1.0f, 5.0f));
+        model=glm::translate(model, glm::vec3(3.0f+0.1*sin(currentFrame), 0.25*sin(currentFrame)+1.0f, 5.0f));
         model=glm::rotate(model, glm::radians(-90.0f) , glm::vec3(1.0f, 0.0f, 0.0f));
         ourShader.setMat4("model", model);
         avion2.Draw(ourShader);
         //avion3
         model=glm::mat4(1.0f);
         model=glm::scale(model, glm::vec3(3.0f));
-        model=glm::translate(model, glm::vec3(0.0f, 0.25*sin(currentFrame)+6.0f, 2.0f));
+        model=glm::translate(model, glm::vec3(0.3*sin(currentFrame), 0.25*sin(currentFrame)+6.0f, 2.0f));
         model=glm::rotate(model, glm::radians(-90.0f) , glm::vec3(1.0f, 0.0f, 0.0f));
         ourShader.setMat4("model", model);
         avion3.Draw(ourShader);
@@ -426,6 +442,24 @@ int main() {
             glDrawArrays(GL_TRIANGLES, 0, 6);
         }
         glEnable(GL_CULL_FACE);
+
+        // birds
+        glDisable(GL_CULL_FACE);
+        birdsShader.use();
+        birdsShader.setMat4("projection", projection);
+        birdsShader.setMat4("view", view);
+        glBindVertexArray(transparentVAO);
+        glBindTexture(GL_TEXTURE_2D, transparentTexture2);
+        for (unsigned int i = 0; i < birds.size(); i++)
+        {
+            model = glm::mat4(1.0f);
+            model = glm::translate(model, clouds[i]);
+            model = glm::scale(model,glm::vec3(5.0f));
+            cloudShader.setMat4("model", model);
+            glDrawArrays(GL_TRIANGLES, 0, 6);
+        }
+        glEnable(GL_CULL_FACE);
+
         //draw skybox
         glDepthFunc(GL_LEQUAL);  // change depth function so depth test passes when values are equal to depth buffer's content
         skyboxShader.use();
@@ -443,8 +477,6 @@ int main() {
 
         if (programState->ImGuiEnabled)
             DrawImGui(programState);
-
-
 
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         // -------------------------------------------------------------------------------
@@ -516,7 +548,6 @@ void DrawImGui(ProgramState *programState) {
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
-
 
     {
         static float f = 0.0f;
